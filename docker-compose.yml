@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  db:
+    build:
+      context: ./db
+    container_name: db
+    image: marlonleiteal/postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    # ports:
+    #   - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - node-network
+  app:
+    build:
+      context: ./node
+    container_name: app
+    image: marlonleiteal/node
+    depends_on:
+      - db
+    # ports:
+    #   - '3000:3000'
+    links:
+      - db
+    volumes:
+      - ./node:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - node-network
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    image: marlonleiteal/nginx
+    depends_on:
+      - db
+      - app
+    ports:
+      - "8080:80"
+    networks:
+      - node-network
+
+networks:
+  node-network:
+    driver: bridge
+volumes:
+  db:
+    driver: local
