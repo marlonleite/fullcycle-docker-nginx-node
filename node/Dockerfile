@@ -1,13 +1,13 @@
-FROM node:15-alpine
+FROM node:14.17.0-slim
 
-WORKDIR /usr/src/app
+RUN apt update && \
+    apt install -y wget netcat && \
+    wget -q -O /usr/bin/wait-for https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for && \
+    chmod +x /usr/bin/wait-for
 
-COPY package*.json ./
+COPY ./start.sh /tmp/start.sh
+RUN chmod +x /tmp/start.sh
 
-RUN npm install
+USER node
 
-COPY . .
-
-EXPOSE 3000
-
-CMD ["npm", "start"]
+WORKDIR /home/node/app
